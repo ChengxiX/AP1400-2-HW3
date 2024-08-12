@@ -30,9 +30,11 @@ public:
     Node** find_parent(int value);
     Node** find_successor(int value);
     bool delete_tree(int value);
+    bool delete_node(int value);
     ~BST();
 private:
     Node* root;
+    Node* find_min_right(Node*& n);
 };
 
 #endif //BST_H

@@ -203,6 +203,51 @@ bool BST::delete_tree(int value)
     return true;
 }
 
+bool BST::delete_node(int value)
+{
+    Node** p = find_parent(value);
+    if (p==nullptr)
+    {
+        return false;
+    }
+    bool l = (*p)->left!=nullptr&&(*p)->left->value==value;
+    Node* del = l ? ((*p)->left) : ((*p)->right);
+    Node* new_node = nullptr;
+    if (del->left!=nullptr && del->right!=nullptr)
+    {
+        Node* min_right = find_min_right(del);
+        new_node = new Node(min_right->value, del->left, del->right);
+        delete_node(min_right->value);
+    }
+    else if (del->left!=nullptr)
+    {
+        new_node = del->left;
+    }
+    else if (del->right!=nullptr)
+    {
+        new_node = del->right;
+    }
+    if (l)
+    {
+        (*p)->left = new_node;
+    }
+    else
+    {
+        (*p)->right = new_node;
+    }
+    delete del;
+    return true;
+}
+
+Node* BST::find_min_right(Node*& del) // 找到右侧最小的
+{
+    Node* current = del;
+    while(current->left!=nullptr)
+    {
+        current = current->left;
+    }
+    return current;
+}
 
 int main()
 {
@@ -216,6 +261,6 @@ int main()
     std::cout << btree.length() <<std::endl;
     //std::cout << *btree.find_parent(7) <<std::endl;
     //std::cout << *btree.find_node(8) <<std::endl;
-    btree.delete_tree(3);
+    btree.delete_node(3);
     btree.display();
 }
