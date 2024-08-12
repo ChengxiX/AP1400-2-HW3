@@ -29,7 +29,7 @@ public:
     Node** find_node(int value);
     Node** find_parent(int value);
     Node** find_successor(int value);
-    bool delete_node(int value);
+    bool delete_tree(int value);
     ~BST();
 private:
     Node* root;

@@ -180,48 +180,29 @@ Node** BST::find_parent(int value)
     }
 }
 
-
-/*
-bool BST::delete_node(int value)
+bool BST::delete_tree(int value)
 {
-    Node** self = &root;
-    Node* current = root;
-    if (current->value==value)
+    Node** p = find_parent(value);
+    if (p==nullptr)
     {
-        delete 
-        return true;
+        return false;
     }
-    while (true)
+    Node* a;
+    if ((*p)->left!=nullptr&&(*p)->left->value==value)
     {
-        if (current->value>value)
-        {
-            if (current->left==nullptr)
-            {
-                return nullptr;
-            }
-            if (current->left->value == value)
-            {
-                return self;
-            }
-            self = &current->left;
-            current = current->left;
-        }
-        else
-        {
-            if (current->right==nullptr)
-            {
-                return nullptr;
-            }
-            if (current->right->value == value)
-            {
-                return self;
-            }
-            self = &current->right;
-            current = current->right;
-        }
+        a = (*p)->left;
+        (*p)->left = nullptr;
     }
+    else
+    {
+        a = (*p)->right;
+        (*p)->right = nullptr;
+    }
+    BST tmp(a);
+    // 会自动回收tmp，此时就把这棵树上的回收了
+    return true;
 }
-*/
+
 
 int main()
 {
@@ -233,6 +214,8 @@ int main()
     btree.add_node(8);
     btree.add_node(7);
     std::cout << btree.length() <<std::endl;
-    std::cout << *btree.find_parent(7) <<std::endl;
-    std::cout << *btree.find_node(8) <<std::endl;
+    //std::cout << *btree.find_parent(7) <<std::endl;
+    //std::cout << *btree.find_node(8) <<std::endl;
+    btree.delete_tree(3);
+    btree.display();
 }
