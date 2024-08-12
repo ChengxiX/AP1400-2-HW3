@@ -1,7 +1,8 @@
 #ifndef BST_H
 #define BST_H
 #include <cstddef>
-#include <exception>
+#include <functional>
+// #include <exception>
 
 class Node
 {
@@ -21,17 +22,17 @@ class BST
 public:
     BST(Node*& root);
     Node*& get_root();
-    void bfs(void (*func)(Node*&));
+    void bfs(std::function<void (Node*&)>);
+    void display();
     size_t length();
     bool add_node(int value);
     Node** find_node(int value);
-    Node** find_parrent(int value);
+    Node** find_parent(int value);
     Node** find_successor(int value);
     bool delete_node(int value);
+    ~BST();
 private:
     Node* root;
 };
-
-class AlreadyExist : public std::exception {};
 
 #endif //BST_H

@@ -3,17 +3,20 @@
 #include <iomanip>
 #include <vector>
 #include <queue>
+#include <functional>
 
 
-Node::Node(int value, Node* left, Node* right)
+Node::Node(int v, Node* l, Node* r)
 {
-    value = value;
-    left = left;
-    right = right;
+    value = v;
+    left = l;
+    right = r;
 }
-Node::Node(int value)
+Node::Node(int v)
 {
-    value = value;
+    value = v;
+    left = nullptr;
+    right = nullptr;
 }
 
 void Node::display()
@@ -22,9 +25,9 @@ void Node::display()
 }
 
 
-BST::BST(Node*& root)
+BST::BST(Node*& r)
 {
-    root = root;
+    root = r;
 }
 
 Node*& BST::get_root()
@@ -32,7 +35,7 @@ Node*& BST::get_root()
     return root;
 }
 
-void BST::bfs(void (*func)(Node*&))
+void BST::bfs(std::function<void (Node*&)> func)
 {
     std::queue<Node*> q;
     q.push(root);
@@ -41,37 +44,35 @@ void BST::bfs(void (*func)(Node*&))
         current = q.front();
         q.pop();
         func(current);
-        if (current->left != NULL)
+        if (current->left != nullptr)
         {
             q.push(current->left);
         }
-        if (current->right != NULL)
+        if (current->right != nullptr)
         {
             q.push(current->right);
         }
     }
 }
 
+void BST::display()
+{
+    bfs([](Node*& x){x->display();});
+}
+
 size_t BST::length()
 {
     size_t len = 0;
-    std::queue<Node*> q;
-    q.push(root);
-    Node* current;
-    while(q.size()>0){
-        current = q.front();
-        q.pop();
-        len++;
-        if (current->left != NULL)
-        {
-            q.push(current->left);
-        }
-        if (current->right != NULL)
-        {
-            q.push(current->right);
-        }
-    }
+    bfs([&len](Node*& node){len++;});
     return len;
+}
+
+BST::~BST()
+{
+	std::vector<Node*> nodes;
+	bfs([&nodes](Node*& node){nodes.push_back(node);});
+	for(auto& node: nodes)
+		delete node;
 }
 
 bool BST::add_node(int value)
@@ -81,19 +82,157 @@ bool BST::add_node(int value)
     {
         if (current->value==value)
         {
-            AlreadyExist e;
-            throw e;
+            return false;
         }
-        
+        if (current->value>value)
+        {
+            if (current->left==nullptr)
+            {
+                current->left = new Node(value);
+                return true;
+            }
+            current = current->left;
+        }
+        else
+        {
+            if (current->right==nullptr)
+            {
+                current->right = new Node(value);
+                return true;
+            }
+            current = current->right;
+        }
     }
-    
 }
+
+Node** BST::find_node(int value)
+{
+    Node* current = root;
+    if (current->value==value)
+    {
+        return &root;
+    }
+    while (true)
+    {
+        if (current->value>value)
+        {
+            if (current->left==nullptr)
+            {
+                return nullptr;
+            }
+            if (current->left->value == value)
+            {
+                return &current->left;
+            }
+            current = current->left;
+        }
+        else
+        {
+            if (current->right==nullptr)
+            {
+                return nullptr;
+            }
+            if (current->right->value == value)
+            {
+                return &current->right;
+            }
+            current = current->right;
+        }
+    }
+}
+
+Node** BST::find_parent(int value)
+{
+    Node** self = &root;
+    Node* current = root;
+    if (current->value==value)
+    {
+        return nullptr;
+    }
+    while (true)
+    {
+        if (current->value>value)
+        {
+            if (current->left==nullptr)
+            {
+                return nullptr;
+            }
+            if (current->left->value == value)
+            {
+                return self;
+            }
+            self = &current->left;
+            current = current->left;
+        }
+        else
+        {
+            if (current->right==nullptr)
+            {
+                return nullptr;
+            }
+            if (current->right->value == value)
+            {
+                return self;
+            }
+            self = &current->right;
+            current = current->right;
+        }
+    }
+}
+
+
+/*
+bool BST::delete_node(int value)
+{
+    Node** self = &root;
+    Node* current = root;
+    if (current->value==value)
+    {
+        delete 
+        return true;
+    }
+    while (true)
+    {
+        if (current->value>value)
+        {
+            if (current->left==nullptr)
+            {
+                return nullptr;
+            }
+            if (current->left->value == value)
+            {
+                return self;
+            }
+            self = &current->left;
+            current = current->left;
+        }
+        else
+        {
+            if (current->right==nullptr)
+            {
+                return nullptr;
+            }
+            if (current->right->value == value)
+            {
+                return self;
+            }
+            self = &current->right;
+            current = current->right;
+        }
+    }
+}
+*/
 
 int main()
 {
-    Node a1(1);
-    Node* n1 = &a1;
-    BST btree(n1);
-    std::cout << btree.length();
-    btree.bfs([](Node*& x){x->display();});
+    Node* r = new Node(10);
+    BST btree(r);
+    btree.add_node(3);
+    btree.add_node(6);
+    btree.add_node(14);
+    btree.add_node(8);
+    btree.add_node(7);
+    std::cout << btree.length() <<std::endl;
+    std::cout << *btree.find_parent(7) <<std::endl;
+    std::cout << *btree.find_node(8) <<std::endl;
 }
